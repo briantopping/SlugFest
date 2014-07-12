@@ -1,9 +1,9 @@
 //
 //  MasterViewController.swift
-//  swiftclass
+//  SwiftClassTodo
 //
-//  Created by Brian Topping on 7/12/14.
-//  Copyright (c) 2014 Brian Topping. All rights reserved.
+//  Created by JP Simard on 7/12/14.
+//  Copyright (c) 2014 Realm. All rights reserved.
 //
 
 import UIKit
@@ -11,7 +11,7 @@ import UIKit
 class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
-    var objects = [NSDate]()
+    var objects = [Task]()
 
 
     override func awakeFromNib() {
@@ -41,8 +41,29 @@ class MasterViewController: UITableViewController {
     }
 
     func insertNewObject(sender: AnyObject) {
-        objects += NSDate()
-        let indexPath = NSIndexPath(forRow: 0, inSection: 0)
+        let alert = UIAlertController(title: "New Task",
+            message: "",
+            preferredStyle: .Alert)
+        alert.addTextFieldWithConfigurationHandler { textField in
+            textField.placeholder = "Buy milk"
+        }
+        let cancelAction = UIAlertAction(title: "Cancel",
+            style: .Default) { action in
+                alert.dismissViewControllerAnimated(true) {}
+        }
+        alert.addAction(cancelAction)
+        let createAction = UIAlertAction(title: "Create",
+            style: .Default) { action in
+                let textField = alert.textFields[0] as UITextField
+                self.addTask(Task(name: textField.text))
+        }
+        alert.addAction(createAction)
+        presentViewController(alert, animated: true) {}
+    }
+
+    func addTask(task: Task) {
+        objects += task
+        let indexPath = NSIndexPath(forRow: objects.count - 1, inSection: 0)
         self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
     }
 
@@ -51,7 +72,7 @@ class MasterViewController: UITableViewController {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "showDetail" {
             let indexPath = self.tableView.indexPathForSelectedRow()
-            let object = objects[indexPath.row] as NSDate
+            let object = objects[indexPath.row]
             ((segue.destinationViewController as UINavigationController).topViewController as DetailViewController).detailItem = object
         }
     }
@@ -69,7 +90,7 @@ class MasterViewController: UITableViewController {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as UITableViewCell
 
-        let object = objects[indexPath.row] as NSDate
+        let object = objects[indexPath.row]
         cell.textLabel.text = object.description
         return cell
     }
@@ -90,11 +111,10 @@ class MasterViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
-            let object = objects[indexPath.row] as NSDate
+            let object = objects[indexPath.row]
             self.detailViewController!.detailItem = object
         }
     }
-
-
+    
+    
 }
-
